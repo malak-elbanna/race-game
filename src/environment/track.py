@@ -1,6 +1,6 @@
 from terrain import Terrain
-from obs_rewards import Obstacles
-from obs_rewards import Rewards
+from obs_reward import Obstacles
+from obs_reward import Rewards
 
 class Track:
     def __init__(self, length):
