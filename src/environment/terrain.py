@@ -8,7 +8,14 @@ class Terrain:
         self.terrain = terrain
         self.speed_mult = self.types[terrain]
 
-    def random_terrain(self):
+    @classmethod
+    def random_terrain(cls):
         # return random terrain type
-        pass
+        terrain = random.choice(list(cls.types.keys()))
+        return cls(terrain)
 
+    def get_mult(self):
+        return self.speed_mult
+
+segments = [Terrain.random_terrain().get_mult() for i in range(5)]
+print(segments)

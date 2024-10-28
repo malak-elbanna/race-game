@@ -13,6 +13,6 @@ class Track:
         # call random functions in terrain, obstacle, reward to make the segment
         pass
 
-    def get_segments(self):
+    def get_segment(self):
         # return segment info
         pass

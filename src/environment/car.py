@@ -8,15 +8,25 @@ class Car:
         self.track = Track(track_length)
 
     def accelerate(self):
-        pass
+        self.speed += 1
     
     def decelerate(self):
-        pass
+        if self.speed <= 1:
+            self.speed = 1
+        else:
+            self.speed -= 1
 
     def recharge(self):
-        pass
+        if 70 < self.battery < 100:
+            self.battery += 20
 
     def move(self):
         # transition function
         # changes speed, position, battery according to segment info
-        pass
+        seg_info = self.track.get_segment(self.position)
+        
+        terrain = seg_info["terrain"]
+        self.speed *= terrain.get_mult()
+        self.battery -= (self.speed * 0.3)
+
+        self.position += int(self.speed)
