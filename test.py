@@ -1,59 +1,155 @@
-import networkx as nx
+from enum import Enum
+import numpy as np
+import time
+import os
+from typing import List
 
-# Define the graph
-G = nx.Graph()
+class TerrainSymbol:
+    ROAD = '.'      # Normal road
+    BOOST = '>'     # Speed boost
+    OBSTACLE = 'X'  # Obstacle
+    RECHARGE = 'F'  # Fuel station
+    WALL = '#'      # Wall
+    FINISH = 'G'    # Goal/Finish line
+    AGENT = 'A'     # Agent/Car
 
-# Define the edges with their weights
-edges = [
-    (1, 2, 50),  # Made path more expensive
-    (1, 3, 20),  # Made path more expensive
-    (1, 4, 100), # Very expensive now
-    (1, 11, 70), # Longer route made very expensive
-    (2, 5, 10),  # Increased the cost slightly
-    (2, 12, 40), # More expensive
-    (3, 6, 30),  # Increased to make it costly
-    (3, 13, 60), # Longer and more expensive
-    (4, 7, 20),  # Kept it moderate but not optimal
-    (4, 14, 150),# Dead end very costly
-    (5, 8, 15),  # Increased cost
-    (5, 15, 100),# Long route made very expensive
-    (6, 9, 40),  # Expensive now
-    (6, 16, 80), # Another long and costly route
-    (7, 10, 10), # Increased, not optimal
-    (8, 9, 20),  # Increased cost to push away from optimal path
-    (8, 17, 50), # Not optimal anymore
-    (9, 10, 5),  # This becomes the shortest path now
-    (10, 18, 100), # Dead end very expensive
-    (11, 12, 60), # Expensive
-    (11, 16, 80), # Long, expensive
-    (12, 9, 90),  # Expensive path
-    (13, 16, 100),# Expensive, longer
-    (14, 10, 200),# Very long and expensive
-    (15, 16, 90), # Long path
-    (16, 10, 300),# Very costly long path
-    (17, 9, 10),  # Dead end moderately cheap
-    (18, 16, 250) # Dead end very costly
-]
+def clear_console():
+    os.system('cls' if os.name == 'nt' else 'clear')
 
-# Add edges to the graph
-G.add_weighted_edges_from(edges)
+class RacingGameVisualizer:
+    def __init__(self, size_x: int = 10, size_y: int = 20):
+        self.size_x = size_x
+        self.size_y = size_y
+        self.grid = np.zeros((size_x, size_y), dtype=int)
+        self._initialize_track()
+        
+        # Initial position
+        self.agent_pos = [size_x // 2, 0]
+        
+    def _initialize_track(self):
+        """Initialize track with terrain"""
+        # Set roads
+        self.grid.fill(0)
+        
+        # Set walls
+        self.grid[0, :] = 4
+        self.grid[-1, :] = 4
+        
+        # Set finish line
+        self.grid[1:-1, -1] = 5
+        
+        # Add obstacles in a pattern to make it interesting
+        # Create two diagonal lines of obstacles
+        for i in range(1, self.size_x-1):
+            y = (i * 2) % (self.size_y-2)
+            if y < self.size_y-2:
+                self.grid[i, y] = 2
+        
+        # Add boost pads before obstacles
+        for i in range(1, self.size_x-1):
+            for j in range(1, self.size_y-1):
+                if self.grid[i, j] == 0 and j < self.size_y-2:
+                    if [i-1, j+1] in [[x, y] for x, y in zip(*np.where(self.grid == 2))]:
+                        self.grid[i, j] = 1
+        
+        # Add recharge stations
+        self.grid[1, self.size_y//2] = 3
+        self.grid[self.size_x-2, self.size_y//2] = 3
 
-# Use Dijkstra's algorithm to find the shortest path from node 1 to 10
-shortest_path = nx.dijkstra_path(G, source=1, target=10)
-shortest_path_length = nx.dijkstra_path_length(G, source=1, target=10)
+    def get_symbol(self, value: int) -> str:
+        symbols = {
+            0: TerrainSymbol.ROAD,
+            1: TerrainSymbol.BOOST,
+            2: TerrainSymbol.OBSTACLE,
+            3: TerrainSymbol.RECHARGE,
+            4: TerrainSymbol.WALL,
+            5: TerrainSymbol.FINISH
+        }
+        return symbols.get(value, '?')
 
-# Find second and third shortest paths
-all_paths = list(nx.all_simple_paths(G, source=1, target=10))
-all_paths_with_costs = []
+    def display_game(self, agent_pos=None):
+        """Display the current game state"""
+        if agent_pos is None:
+            agent_pos = self.agent_pos
+            
+        clear_console()
+        
+        # Print column numbers
+        print("   ", end="")
+        for j in range(self.size_y):
+            print(f"{j%10}", end=" ")
+        print("\n")
+        
+        # Print grid with agent
+        for i in range(self.size_x):
+            # Print row numbers
+            print(f"{i:2} ", end="")
+            
+            for j in range(self.size_y):
+                if [i, j] == agent_pos:
+                    print(TerrainSymbol.AGENT, end=" ")
+                else:
+                    print(self.get_symbol(self.grid[i, j]), end=" ")
+            
+            # Print legend for this row
+            if i == 0:
+                print("   Legend:")
+            elif i == 1:
+                print(f"   {TerrainSymbol.AGENT} = Agent/Car")
+            elif i == 2:
+                print(f"   {TerrainSymbol.ROAD} = Road")
+            elif i == 3:
+                print(f"   {TerrainSymbol.BOOST} = Speed Boost")
+            elif i == 4:
+                print(f"   {TerrainSymbol.OBSTACLE} = Obstacle")
+            elif i == 5:
+                print(f"   {TerrainSymbol.RECHARGE} = Fuel Station")
+            elif i == 6:
+                print(f"   {TerrainSymbol.WALL} = Wall")
+            elif i == 7:
+                print(f"   {TerrainSymbol.FINISH} = Finish Line")
+            else:
+                print()
+            
+        print()
 
-# Calculate the cost for each path
-for path in all_paths:
-    cost = sum(G.edges[path[i], path[i+1]]['weight'] for i in range(len(path)-1))
-    all_paths_with_costs.append((path, cost))
+    def animate_path(self, path: List[List[int]], delay: float = 0.5):
+        """Animate the agent following a path"""
+        for pos in path:
+            self.display_game(pos)
+            time.sleep(delay)
 
-# Sort the paths by cost
-sorted_paths = sorted(all_paths_with_costs, key=lambda x: x[1])
+def main():
+    # Create and display initial game state
+    game = RacingGameVisualizer(10, 20)
+    game.display_game()
+    
+    # Example path (you would replace this with BFS path)
+    example_path = [
+        [5, 0],  # Start
+        [5, 1],
+        [4, 2],
+        [4, 3],
+        [5, 4],
+        [5, 5],
+        [6, 6],
+        [5, 7],
+        [4, 8],
+        [4, 9],
+        [5, 10],
+        [5, 11],
+        [4, 12],
+        [4, 13],
+        [5, 14],
+        [5, 15],
+        [4, 16],
+        [4, 17],
+        [4, 18],
+        [4, 19]   # Finish
+    ]
+    
+    input("\nPress Enter to start animation...")
+    game.animate_path(example_path)
 
-# Print the 3 shortest paths and their costs
-for i, (path, cost) in enumerate(sorted_paths[:4]):
-    print(f"Path {i+1}: {path}, Cost: {cost}")
+if __name__ == "__main__":
+    main()

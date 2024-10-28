@@ -1,47 +1,31 @@
-from enum import Enum
 import numpy as np
-from typing import Tuple, List, Dict, Set
-from dataclasses import dataclass
-from collections import deque
 import random
+import matplotlib.pyplot as plt
+import matplotlib.patches as patches
+from IPython.display import clear_output
+from collections import deque
+from dataclasses import dataclass
 
-class Action(Enum):
-    ACCELERATE = 0
-    DECELERATE = 1
-    MOVE_LEFT = 2
-    MOVE_RIGHT = 3
-    STOP = 4
+# Constants for terrain types
+ROAD, BOOST, OBSTACLE, AGENT, WALL, FINISH_LINE = 0, 1, 2, 3, 4, 5
 
 @dataclass
 class Position:
     x: int
     y: int
 
-    def __hash__(self):
-        return hash((self.x, self.y))
-    
-    def __eq__(self, other):
-        if not isinstance(other, Position):
-            return False
-        return self.x == other.x and self.y == other.y
-
 @dataclass
 class State:
     position: Position
     speed: int
-    fuel: float
-    damage: float
-    
-    def __hash__(self):
-        return hash((self.position, self.speed, int(self.fuel), int(self.damage)))
-    
-    def __eq__(self, other):
-        if not isinstance(other, State):
-            return False
-        return (self.position == other.position and 
-                self.speed == other.speed and 
-                int(self.fuel) == int(other.fuel) and 
-                int(self.damage) == int(other.damage))
+    fuel: int
+    damage: int
+
+@dataclass
+class Action:
+    dx: int
+    dy: int
+    change_speed: int
 
 class RacingGame:
     def __init__(self, size_x: int = 10, size_y: int = 20):
@@ -49,7 +33,7 @@ class RacingGame:
         self.size_y = size_y
         self.grid = np.zeros((size_x, size_y), dtype=int)
         self._initialize_track()
-        
+
         # Initial state
         self.initial_state = State(
             position=Position(size_x // 2, 0),
@@ -57,176 +41,134 @@ class RacingGame:
             fuel=100,
             damage=0
         )
-    
+
     def _initialize_track(self):
-        """Initialize track with terrain (same as before)"""
-        # Same initialization as in your previous code
-        self.grid.fill(0)  # Road
-        self.grid[0, :] = 4  # Walls
-        self.grid[-1, :] = 4
-        self.grid[1:-1, -1] = 5  # Finish line
-        
-        # Add obstacles
+        # Initialize track with terrain, walls, finish line, obstacles, and boosts
+        self.grid.fill(ROAD)  # Road
+        self.grid[0, :] = WALL  # Top wall
+        self.grid[-1, :] = WALL  # Bottom wall
+        self.grid[1:-1, -1] = FINISH_LINE  # Finish line on the right side
+
+        # Random obstacles and boosts
         n_obstacles = (self.size_x - 2) * (self.size_y - 1) // 5
-        for _ in range(n_obstacles):
-            x = random.randint(1, self.size_x - 2)
-            y = random.randint(1, self.size_y - 2)
-            self.grid[x, y] = 2
-        
-        # Add boosts
         n_boosts = (self.size_x - 2) * (self.size_y - 1) // 10
+
+        for _ in range(n_obstacles):
+            x, y = random.randint(1, self.size_x - 2), random.randint(1, self.size_y - 2)
+            self.grid[x, y] = OBSTACLE
+
         for _ in range(n_boosts):
-            x = random.randint(1, self.size_x - 2)
-            y = random.randint(1, self.size_y - 2)
-            if self.grid[x, y] == 0:
-                self.grid[x, y] = 1
+            x, y = random.randint(1, self.size_x - 2), random.randint(1, self.size_y - 2)
+            if self.grid[x, y] == ROAD:
+                self.grid[x, y] = BOOST
 
-    def is_goal_state(self, state: State) -> bool:
-        """Check if current state is a goal state"""
-        return self.grid[state.position.x, state.position.y] == 5
+    def visualize_state(self, state: State):
+        """Visualize the current state of the game."""
+        clear_output(wait=True)
+        fig, ax = plt.subplots(figsize=(8, 16))
 
-    def get_valid_actions(self, state: State) -> List[Action]:
-        """Get list of valid actions from current state"""
-        valid_actions = [Action.STOP]
-        
-        # Can always accelerate/decelerate unless at min/max speed
-        if state.speed < 5:
-            valid_actions.append(Action.ACCELERATE)
-        if state.speed > 0:
-            valid_actions.append(Action.DECELERATE)
-        
-        # Can move left/right if not at edges and have fuel
-        if state.position.x > 1 and state.fuel >= 1:
-            valid_actions.append(Action.MOVE_LEFT)
-        if state.position.x < self.size_x - 2 and state.fuel >= 1:
-            valid_actions.append(Action.MOVE_RIGHT)
-                
-        return valid_actions
+        for x in range(self.size_x):
+            for y in range(self.size_y):
+                color = 'white'
+                if self.grid[x, y] == WALL:
+                    color = 'gray'
+                elif self.grid[x, y] == FINISH_LINE:
+                    color = 'gold'
+                elif self.grid[x, y] == OBSTACLE:
+                    color = 'red'
+                elif self.grid[x, y] == BOOST:
+                    color = 'blue'
 
-    def transition(self, state: State, action: Action) -> Tuple[State, float, bool]:
-        """Apply action to state and return (new_state, reward, done)"""
-        new_state = State(
-            Position(state.position.x, state.position.y),
-            state.speed,
-            state.fuel,
-            state.damage
-        )
-        
-        # Apply action effects
-        if action == Action.ACCELERATE:
-            new_state.speed = min(5, new_state.speed + 1)
-            new_state.fuel -= 2
-        elif action == Action.DECELERATE:
-            new_state.speed = max(0, new_state.speed - 1)
-            new_state.fuel -= 1
-        elif action == Action.MOVE_LEFT:
-            new_state.position.x -= 1
-            new_state.fuel -= 1
-        elif action == Action.MOVE_RIGHT:
-            new_state.position.x += 1
-            new_state.fuel -= 1
-        elif action == Action.STOP:
-            new_state.speed = 0
-            new_state.fuel -= 0.5
-        
-        # Move forward based on speed
-        new_state.position.y = new_state.position.y + new_state.speed
-        
-        # Check if game is over
-        done = (new_state.fuel <= 0 or 
-                new_state.damage >= 100 or 
-                self.is_goal_state(new_state))
-        
-        # Calculate reward
-        reward = new_state.speed  # Base reward for movement
-        
-        # Additional rewards based on terrain
-        terrain = self.grid[new_state.position.x, new_state.position.y]
-        if terrain == 1:  # Boost
-            reward += 10
-            new_state.speed = min(5, new_state.speed + 2)
-        elif terrain == 2:  # Obstacle
-            reward -= 50
-            new_state.damage += 20
-            new_state.speed = max(0, new_state.speed - 2)
-        elif terrain == 5:  # Finish line
-            reward += 1000
-        
+                ax.add_patch(patches.Rectangle((y, x), 1, 1, color=color))
+
+        # Draw the AI agent
+        ax.add_patch(patches.Circle((state.position.y + 0.5, state.position.x + 0.5), 0.3, color='green'))
+
+        ax.set_xlim(0, self.size_y)
+        ax.set_ylim(0, self.size_x)
+        ax.set_xticks([])
+        ax.set_yticks([])
+        plt.gca().invert_yaxis()
+        plt.show()
+
+    def transition(self, state: State, action: Action):
+        """Simulate the agent moving to a new position based on an action."""
+        new_x = max(0, min(state.position.x + action.dx, self.size_x - 1))
+        new_y = max(0, min(state.position.y + action.dy, self.size_y - 1))
+
+        new_position = Position(new_x, new_y)
+        reward = -1  # Penalty for each move
+        done = False
+
+        # Check terrain type and adjust accordingly
+        terrain = self.grid[new_x, new_y]
+        if terrain == OBSTACLE:
+            state.damage += 10
+            reward -= 20
+        elif terrain == BOOST:
+            state.speed += 1
+            reward += 5
+        elif terrain == FINISH_LINE:
+            reward += 100
+            done = True
+
+        new_state = State(new_position, state.speed, state.fuel - 1, state.damage)
         return new_state, reward, done
 
-def bfs_search(game: RacingGame) -> List[Action]:
-    """
-    Use BFS to find a path to the goal state
-    Returns list of actions to reach goal
-    """
-    start_state = game.initial_state
-    queue = deque([(start_state, [])])  # (state, actions_to_reach)
+    def transition_and_visualize(self, state: State, action: Action):
+        """Apply an action, transition to the next state, and visualize it."""
+        new_state, reward, done = self.transition(state, action)
+        self.visualize_state(new_state)
+        return new_state, reward, done
+
+# BFS Search Algorithm
+def bfs_search(game: RacingGame):
+    queue = deque([(game.initial_state, [])])
     visited = set()
-    
+
     while queue:
-        current_state, actions = queue.popleft()
-        
-        if current_state in visited:
+        current_state, path = queue.popleft()
+        if (current_state.position.x, current_state.position.y) in visited:
             continue
-            
-        visited.add(current_state)
-        
-        # Check if we've reached the goal
-        if game.is_goal_state(current_state):
-            return actions
-        
-        # Try each valid action
-        for action in game.get_valid_actions(current_state):
-            next_state, reward, done = game.transition(current_state, action)
-            
-            # Only add to queue if state is valid
-            if (next_state.fuel > 0 and 
-                next_state.damage < 100 and 
-                next_state not in visited):
-                queue.append((next_state, actions + [action]))
-    
-    return []  # No path found
+
+        visited.add((current_state.position.x, current_state.position.y))
+
+        if game.grid[current_state.position.x, current_state.position.y] == FINISH_LINE:
+            return path
+
+        # Possible actions (left, right, up, down)
+        actions = [Action(0, 1, 0), Action(1, 0, 0), Action(0, -1, 0), Action(-1, 0, 0)]
+        for action in actions:
+            new_x = current_state.position.x + action.dx
+            new_y = current_state.position.y + action.dy
+            if 0 <= new_x < game.size_x and 0 <= new_y < game.size_y and (new_x, new_y) not in visited:
+                new_position = Position(new_x, new_y)
+                new_state = State(new_position, current_state.speed, current_state.fuel, current_state.damage)
+                queue.append((new_state, path + [action]))
+
+    return None
 
 def main():
-    # Create game instance
     game = RacingGame(size_x=10, size_y=20)
-    
-    # Find path using BFS
     path = bfs_search(game)
-    
+
     if not path:
         print("No path found!")
         return
-    
-    print("Found path to goal:")
-    
-    # Follow the path and show states
+
     current_state = game.initial_state
     total_reward = 0
-    
-    print("\nInitial state:")
-    print(f"Position: ({current_state.position.x}, {current_state.position.y})")
-    print(f"Speed: {current_state.speed}")
-    print(f"Fuel: {current_state.fuel}")
-    
+    game.visualize_state(current_state)
+
     for action in path:
-        next_state, reward, done = game.transition(current_state, action)
+        current_state, reward, done = game.transition_and_visualize(current_state, action)
         total_reward += reward
-        
-        print(f"\nAction: {action.name}")
-        print(f"New position: ({next_state.position.x}, {next_state.position.y})")
-        print(f"Speed: {next_state.speed}")
-        print(f"Fuel: {next_state.fuel}")
-        print(f"Reward: {reward}")
-        
+
         if done:
-            print("\nReached goal state!")
+            print("Reached goal state!")
             break
-            
-        current_state = next_state
-    
-    print(f"\nTotal reward: {total_reward}")
-    print(f"Path length: {len(path)}")
+
+    print(f"Total reward: {total_reward}")
 
 if __name__ == "__main__":
     main()
