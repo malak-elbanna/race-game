@@ -1,31 +1,46 @@
 import random
 
 class Obstacles:
-    obs = ["wall", "animal", None]
+    obs = ["wall", "animal",'mud']
 
     def __init__(self, obstacle):
         self.type = obstacle
-        self.impact = impact(obstacle)
-
-    def random_obstacle(self):
-        pass
+        self.impact = self.impact(obstacle)
+    @classmethod
+    def random_obstacle(cls):
+        # Randomly select an obstacle type
+        obstacle = random.choice(cls.obs_types)
+        return cls(obstacle)
     
-    def impact(self):
-        # impact of obstacle on car
-        # ig if conditions
-        pass
+    def impact(self,car):
+        if self.obstacle == "wall":
+            pass # here is code to stop the car
+        elif self.obstacle == "animal":
+            car.decelerate()
+        elif self.obstacle == "mud":
+            car.decelerate()
 
 class Rewards:
-    rews = ["coin", "benzene", None]
+    rews = ["small_coin",'big_coin', "benzene",'speed_boost','nitro_boost']
 
     def __init__(self, reward):
         self.reward = reward
-        self.impact = impact(reward)
+        self.impact = self.impact(reward)
     
-    def random_reward(self):
-        pass
+    @classmethod
+    def random_reward(cls):
+        # Randomly select a reward type
+        reward = random.choice(cls.reward_types)
+        return cls(reward)
 
-    def impact(self):
-        # impact of reward on car
-        # ig if conditions
-        pass
+    def impact(self,car):
+        if self.reward == "small_coin":
+            car.collect_coin(1)
+        elif self.reward == "big_coin":
+            car.collect_coin(10)
+        elif self.reward == "benzene":
+            car.recharge()
+        elif self.reward == "speed_boost":
+            car.accelerate()
+        elif self.reward == "nitro_boost":
+            pass # double speed temporarily 

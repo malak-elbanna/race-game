@@ -6,6 +6,7 @@ class Car:
         self.speed = 1
         self.battery = 100
         self.track = Track(track_length)
+        self.coins = 0
 
     def accelerate(self):
         self.speed += 1
@@ -19,6 +20,8 @@ class Car:
     def recharge(self):
         if 70 < self.battery < 100:
             self.battery += 20
+    def collect_coin(self,amount):
+        self.coins += amount
 
     def move(self):
         # transition function
