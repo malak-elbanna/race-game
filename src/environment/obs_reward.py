@@ -14,13 +14,12 @@ class Obstacles:
     
     def impact(self, car):
         if self.type == "wall":
-            car.speed = 0
-            car.position -= 1
+            car.speed = max(0, car.speed - 2)
         elif self.type == "animal":
             car.decelerate()
-            car.battery -= 5
+            car.battery -= 3
         elif self.type == "mud":
-            car.speed = max(1, car.speed * 0.5)
+            car.speed = max(1, car.speed * 0.7)
 
 class Rewards:
     rews = ["small_coin",'big_coin', "benzene",'speed_boost','nitro_boost']
@@ -40,9 +39,8 @@ class Rewards:
         elif self.reward == "big_coin":
             car.collect_coin(10)
         elif self.reward == "benzene":
-            if car.battery <= 70:  
-                car.battery = min(car.battery + 30, car.MAX_BATTERY)
+            car.battery = min(car.battery + 10, car.MAX_BATTERY)
         elif self.reward == "speed_boost":
-            car.speed = min(car.speed + 2, car.MAX_SPEED)
+           car.speed = min(car.speed + 1, car.MAX_SPEED)
         elif self.reward == "nitro_boost":
-            pass # double speed temporarily 
+            car.speed = min(car.speed * 1.5, car.MAX_SPEED)

@@ -13,7 +13,11 @@ class Track:
         # loop till the end of the track
         # call random functions in terrain, obstacle, reward to make the segment
         for i in range(length):
-            segment_type = random.choice(['terrain', 'obstacle', 'reward'])
+            if i < length // 2: 
+                segment_type = random.choice(['terrain', 'reward'])
+            else:
+                segment_type = random.choice(['terrain', 'obstacle', 'reward'])
+
             if segment_type == 'terrain':
                 self.segments.append(Terrain.random_terrain())
             elif segment_type == 'obstacle':

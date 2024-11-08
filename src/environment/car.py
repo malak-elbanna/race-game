@@ -29,7 +29,7 @@ class Car:
         self.coins += amount
 
     def move(self):
-        self.battery -= (self.speed * 0.3)
+        self.battery -= (self.speed * 0.2)
         self.battery = max(0, self.battery)
 
         seg_info = self.track.get_segment(self.position)
