@@ -1,6 +1,11 @@
 from track import Track
+from terrain import Terrain
+from obs_reward import Obstacles, Rewards
 
 class Car:
+    MAX_BATTERY = 100
+    MAX_SPEED = 5
+
     def __init__(self, track_length):
         self.position = 0
         self.speed = 1
@@ -9,27 +14,34 @@ class Car:
         self.coins = 0
 
     def accelerate(self):
-        self.speed += 1
+        self.speed = min(self.speed + 1, self.MAX_SPEED)
     
     def decelerate(self):
-        if self.speed <= 1:
-            self.speed = 1
-        else:
-            self.speed -= 1
+        self.speed = max(self.speed - 1, 1)
 
     def recharge(self):
-        if 70 < self.battery < 100:
-            self.battery += 20
-    def collect_coin(self,amount):
+        if self.battery <= 70:  
+            self.battery = min(self.battery + 20, self.MAX_BATTERY)
+            return True
+        return False
+
+    def collect_coin(self, amount):
         self.coins += amount
 
     def move(self):
-        # transition function
-        # changes speed, position, battery according to segment info
-        seg_info = self.track.get_segment(self.position)
-        
-        terrain = seg_info["terrain"]
-        self.speed *= terrain.get_mult()
         self.battery -= (self.speed * 0.3)
+        self.battery = max(0, self.battery)
 
-        self.position += int(self.speed)
+        seg_info = self.track.get_segment(self.position)
+
+        if isinstance(seg_info, Terrain):
+            original = self.speed
+            self.speed = max(1, min(original * seg_info.get_mult(), self.MAX_SPEED))
+
+        elif isinstance(seg_info, Obstacles):
+            seg_info.impact(self)
+
+        elif isinstance(seg_info, Rewards):
+            seg_info.impact(self)
+
+        self.position += max(1, int(self.speed))
