@@ -1,46 +1,36 @@
-#ai generated
+# main.py
 from env import Environment
 
-def run_game():
-    # Initialize environment with a track length of 20
-    environment = Environment(track_length=20)
-    game_active = True
+def run_simulation(track_length, steps):
+    # Initialize environment
+    env = Environment(track_length)
     
-    while game_active and not environment.game_over():
-        # Print current state
-        print(f"\nCurrent Status:")
-        print(f"Position: {environment.car.position}")
-        print(f"Speed: {environment.car.speed}")
-        print(f"Battery: {environment.car.battery:.1f}")
-        print(f"Coins: {environment.car.coins}")
+    # Print the initial environment setup
+    print("Starting Simulation:")
+    print(f"Track Length: {track_length}")
+    print(f"Initial Car Position: {env.car.position}, Battery: {env.car.battery}, Speed: {env.car.speed}")
+
+    # Simulate actions over a series of steps
+    for step in range(steps):
+        action = input("Enter action (accelerate, decelerate, recharge): ")
+        env.step(action)
         
-        # Get current segment info
-        current_segment = environment.track.get_segment(environment.car.position)
-        if current_segment:
-            if hasattr(current_segment, 'terrain'):
-                print(f"Current terrain: {current_segment.terrain}")
-            elif hasattr(current_segment, 'type'):
-                print(f"Obstacle ahead: {current_segment.type}")
-            elif hasattr(current_segment, 'reward'):
-                print(f"Reward ahead: {current_segment.reward}")
-        
-        # Get player action
-        print("\nAvailable actions: accelerate, decelerate, recharge, move")
-        action = input("Enter action: ").lower()
-        
-        if action in ['accelerate', 'decelerate', 'recharge', 'move']:
-            environment.step(action)
-            
-            # Check if game should end
-            if environment.car.battery <= 0:
-                print("Game Over! Out of battery!")
-                game_active = False
-            elif environment.car.position >= environment.track.length:
-                print(f"Congratulations! You finished the track!")
-                print(f"Final coins collected: {environment.car.coins}")
-                game_active = False
-        else:
-            print("Invalid action! Please try again.")
+        # Check if the game is over after each action
+        if env.game_over():
+            print("Simulation ended.")
+            break
+
+        # Print current environment status
+        print(f"Step {step + 1}")
+        print(f"Car Position: {env.car.position}")
+        print(f"Battery: {env.car.battery}")
+        print(f"Speed: {env.car.speed}")
+        print(f"Coins Collected: {env.car.coins}\n")
 
 if __name__ == "__main__":
-    run_game()
+    # Define track length and number of steps for the simulation
+    track_length = 20
+    steps = 50
+
+    # Run the simulation
+    run_simulation(track_length, steps)
