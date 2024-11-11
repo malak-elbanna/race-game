@@ -31,3 +31,6 @@ class Environment:
     def game_over(self):
         print(f"\nPostiion: {self.car.position} \n Battery: {self.car.battery} \nSpeed: {self.car.speed} \n")
         return self.car.position >= self.track.length or self.car.battery <= 0  or self.car.speed == 0
+    
+    def get_state(self):
+        return (self.car.position, self.car.speed, self.car.battery, self.car.coins)
