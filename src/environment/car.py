@@ -1,6 +1,6 @@
-from track import Track
-from terrain import Terrain
-from obs_reward import Obstacles, Rewards
+from src.environment.track import Track
+from src.environment.terrain import Terrain
+from src.environment.obs_reward import Obstacles, Rewards
 
 class Car:
     MAX_BATTERY = 100

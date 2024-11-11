@@ -1,5 +1,5 @@
-from car import Car
-from track import Track
+from src.environment.car import Car
+from src.environment.track import Track
 
 class Environment:
     def __init__(self, track_length):

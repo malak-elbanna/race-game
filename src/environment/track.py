@@ -1,6 +1,6 @@
-from terrain import Terrain
-from obs_reward import Obstacles
-from obs_reward import Rewards
+from src.environment.terrain import Terrain
+from src.environment.obs_reward import Obstacles
+from src.environment.obs_reward import Rewards
 import random
 
 class Track:
