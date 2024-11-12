@@ -1,9 +1,12 @@
+import sys
+import os
+import copy
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '../../')))
 from src.environment.env import Environment
 from src.environment.terrain import Terrain
 from src.environment.obs_reward import Obstacles
 from src.environment.car import Car
 import heapq
-import copy
 
 def simple_heuristic(car_position, goal):
     return goal - car_position

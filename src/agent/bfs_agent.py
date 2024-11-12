@@ -1,3 +1,6 @@
+import sys
+import os
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '../../')))
 from src.environment.env import Environment
 from src.environment.terrain import Terrain
 from src.environment.obs_reward import Obstacles
