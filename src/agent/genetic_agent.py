@@ -12,3 +12,4 @@ from src.environment.car import Car
 def fitness(state, goal):
     position, speed, battery, coins = state
     return -(goal - position) + (battery / 100) * speed  
+
