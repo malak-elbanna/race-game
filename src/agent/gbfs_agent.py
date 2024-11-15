@@ -108,6 +108,21 @@ def greedy(environment, goal, visualizer=None):
 
     return None  
 
+def calc_avg_runtime():
+    times = []
+    for i in [5, 10, 15, 20, 25, 30, 35, 40]:
+        env = Environment(track_length=i)
+        start = time.time()
+        solution = greedy(env, env.track.length -1)
+        end = time.time()
+
+        total = end - start
+        times.append(total)
+    
+    avg_time = sum(times) / len(times)
+    print("\nAverage time= ", avg_time)
+    return avg_time
+
 def main():
     env = Environment(track_length=1000)  
     visualizer = Visualizer()
@@ -127,4 +142,5 @@ def main():
         print("no solution")
         visualizer.show_graph()
 
-main()
+# main()
+calc_avg_runtime()

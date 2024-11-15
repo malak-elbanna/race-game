@@ -117,7 +117,22 @@ def astar(environment, goal, visualizer=None):
                 new_path = path + [(new_state, cost)]
                 heapq.heappush(frontier, (path_cost(new_path, goal, environment.track.length), new_path))
 
-    return None  
+    return None 
+
+def calc_avg_runtime():
+    times = []
+    for i in [5, 10, 15, 20, 25, 30, 35, 40]:
+        env = Environment(track_length=i)
+        start = time.time()
+        solution = astar(env, env.track.length -1)
+        end = time.time()
+
+        total = end - start
+        times.append(total)
+    
+    avg_time = sum(times) / len(times)
+    print("\nAverage time= ", avg_time)
+    return avg_time 
 
 def main():
     env = Environment(track_length=100)  
@@ -137,5 +152,5 @@ def main():
         print("No solution found")
         visualizer.show_graph()
 
-main()
-
+# main()
+calc_avg_runtime()

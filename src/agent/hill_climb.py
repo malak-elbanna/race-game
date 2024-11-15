@@ -58,6 +58,21 @@ def get_best_neighbor(environment, current_state, goal, visualizer=None):
 
     return best_state
 
+def calc_avg_runtime():
+    times = []
+    for i in [5, 10, 15, 20, 25, 30, 35, 40]:
+        env = Environment(track_length=i)
+        start = time.time()
+        solution = hill_climb(env, env.track.length -1)
+        end = time.time()
+
+        total = end - start
+        times.append(total)
+    
+    avg_time = sum(times) / len(times)
+    print("\nAverage time= ", avg_time)
+    return avg_time
+
 def hill_climb(environment, goal, visualizer=None):
     current_state = environment.get_state()
     path = [(current_state, 0)]
@@ -88,5 +103,5 @@ def main():
         print("No solution found")
         visualizer.show_graph()
 
-main()
-
+# main()
+calc_avg_runtime()
