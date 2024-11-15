@@ -6,6 +6,7 @@ from src.environment.terrain import Terrain
 from src.environment.obs_reward import Obstacles
 from src.environment.car import Car
 from collections import deque
+from src.agent.visualize import Visualizer
 
 def get_successors(environment, path):
     actions = ["accelerate", "decelerate", "recharge", "move"]
@@ -28,7 +29,7 @@ def get_successors(environment, path):
             seen_states.add(new_state) 
     return successors
 
-def dfs_limited(environment, goal, limit):
+def dfs_limited(environment, goal, limit, visualizer=None):
     initial_state = environment.get_state()
     frontier = deque([[(initial_state, 0)]]) 
     visited = set()  
@@ -53,29 +54,36 @@ def dfs_limited(environment, goal, limit):
         successors = get_successors(environment, path)
 
         for new_state, _ in successors:
+            if visualizer:
+                visualizer.add_state(state, new_state, action="move")
+
             if new_state not in visited:
                 new_path = path + [(new_state, 1)]
                 frontier.append(new_path)
 
     return None
 
-def ids(environment, goal):
+def ids(environment, goal, visualizer=None):
     depth = 0
     while True:
-        result = dfs_limited(environment, goal, depth)
+        result = dfs_limited(environment, goal, depth, visualizer)
         if result:
             return result
         depth += 1
 
 def main():
-    env = Environment(track_length=40)
-    solution = ids(env, env.track.length - 1) 
+    env = Environment(track_length=10)
+    visualizer = Visualizer()
+    solution = ids(env, env.track.length - 1, visualizer) 
 
     if solution:
         print("Solution path:", solution)
         total_steps = len(solution) - 1
         print("Total steps:", total_steps)
+
+        visualizer.show_graph(solution)
     else:
         print("No solution")
+        visualizer.show_graph()
 
 main()

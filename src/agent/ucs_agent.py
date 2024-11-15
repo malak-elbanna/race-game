@@ -6,6 +6,7 @@ from src.environment.env import Environment
 from src.environment.terrain import Terrain
 from src.environment.obs_reward import Obstacles
 from src.environment.car import Car
+from src.agent.visualize import Visualizer
 import heapq
 
 
@@ -44,7 +45,7 @@ def get_successors(environment, path):
             successors.append((new_state, cost))
     return successors
 
-def ucs(environment, goal):
+def ucs(environment, goal, visualizer=None):
     initial_state = environment.get_state()
     frontier = []
     heapq.heappush(frontier, (0, [(initial_state, 0)]))  
@@ -67,6 +68,9 @@ def ucs(environment, goal):
 
         successors = get_successors(environment, path)
         for new_state, cost in successors:
+            if visualizer:
+                visualizer.add_state(state, new_state, action="move")
+
             new_path = path + [(new_state, cost)]
             new_g_cost = path_cost(new_path)
             if new_state not in visited or visited[new_state] > new_g_cost:
@@ -75,9 +79,10 @@ def ucs(environment, goal):
     return None  
 
 def main():
-    env = Environment(track_length=100)
+    env = Environment(track_length=20)
     print(env)  
-    solution = ucs(env, env.track.length - 1)
+    visualizer = Visualizer()
+    solution = ucs(env, env.track.length - 1, visualizer)
 
     if solution:
         print("Solution path:", solution)
@@ -86,7 +91,10 @@ def main():
             total_cost += cost
 
         print("Total cost: ", total_cost)
+
+        visualizer.show_graph(solution)
     else:
         print("No solution")
+        visualizer.show_graph()
 
 main()

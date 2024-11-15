@@ -7,6 +7,8 @@ from src.environment.env import Environment
 from src.environment.terrain import Terrain
 from src.environment.obs_reward import Obstacles
 from src.environment.car import Car
+from src.agent.visualize import Visualizer
+from src.agent.visualize import Visualizer
 import heapq
 
 def simple_heuristic(car_position, goal):
@@ -85,7 +87,7 @@ def visualize(solution, track_length):
         time.sleep(0.5)
     print("Goal Reached!")
 
-def astar(environment, goal):
+def astar(environment, goal, visualizer=None):
     initial_state = environment.get_state()
     frontier = []
     heapq.heappush(frontier, (0, [(initial_state, 0)]))  
@@ -108,6 +110,9 @@ def astar(environment, goal):
 
         successors = get_successors(environment, path)
         for new_state, cost in successors:
+            if visualizer:
+                visualizer.add_state(state, new_state, action="move")
+
             if new_state not in visited or visited[new_state] > f_cost + cost:
                 new_path = path + [(new_state, cost)]
                 heapq.heappush(frontier, (path_cost(new_path, goal, environment.track.length), new_path))
@@ -116,16 +121,20 @@ def astar(environment, goal):
 
 def main():
     env = Environment(track_length=100)  
-    solution = astar(env, env.track.length - 1)
+    visualizer = Visualizer()
+    solution = astar(env, env.track.length - 1, visualizer)
 
     if solution:
         print("Solution path:", solution)
         total_cost = 0
         for i, cost in solution:
             total_cost += cost
-        visualize(solution, env.track.length)
+        #visualize(solution, env.track.length)
         print("Total cost:", total_cost)
+        visualizer.show_graph(solution)
     else:
-        print("no solution")
+        print("No solution found")
+        visualizer.show_graph()
 
 main()
+
