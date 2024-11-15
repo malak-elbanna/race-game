@@ -30,18 +30,19 @@ class Car:
 
     def move(self):
         self.battery -= (self.speed * 0.2)
-        self.battery = max(0, self.battery)
+        self.battery = round(max(0, self.battery), 2)
 
         seg_info = self.track.get_segment(self.position)
 
         if isinstance(seg_info, Terrain):
             original = self.speed
             self.speed = max(1, min(original * seg_info.get_mult(), self.MAX_SPEED))
-
+            
         elif isinstance(seg_info, Obstacles):
             seg_info.impact(self)
-
+            
         elif isinstance(seg_info, Rewards):
             seg_info.impact(self)
 
+        self.speed = round(self.speed, 2)
         self.position += max(1, int(self.speed))
