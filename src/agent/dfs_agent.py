@@ -9,6 +9,7 @@ from src.environment.car import Car
 from src.agent.visualize import Visualizer
 from collections import deque
 import copy
+import tracemalloc
 
 def visualize_sol(solution, track_length):
     for position in solution:  
@@ -98,6 +99,23 @@ def calc_avg_runtime():
     print("\nAverage time= ", avg_time)
     return avg_time
 
+def calc_avg_memory():
+    memory_usages = []
+
+    for i in [5, 10, 15, 20, 25, 30, 35, 40]:
+        env = Environment(track_length=i)
+        
+        tracemalloc.start()  
+        sol = dfs(env, env.track.length - 1)
+        current, peak = tracemalloc.get_traced_memory()  
+        tracemalloc.stop()
+
+        memory_usages.append(peak)  
+
+    avg_memory = sum(memory_usages) / len(memory_usages)
+    print("\nAverage memory usage (bytes):", avg_memory)
+    return avg_memory
+
 def main():
     env = Environment(track_length=15)
     visualizer = Visualizer()
@@ -120,4 +138,5 @@ def main():
 
 # main()
 
-calc_avg_runtime()
+#calc_avg_runtime()
+calc_avg_memory()
