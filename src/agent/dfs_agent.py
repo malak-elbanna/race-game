@@ -95,11 +95,10 @@ def main():
         print("Solution path:", solution)
         total_steps = len(solution) - 1
         print("Total steps:", total_steps)
-        # visualize(solution, env.track.length)
+        # visualize(env, solution)
 
         visualizer.show_graph(solution)
     else:
         print("No solution")
-        visualizer.show_graph()
 
 main()

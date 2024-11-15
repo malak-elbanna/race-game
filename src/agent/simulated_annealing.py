@@ -9,6 +9,26 @@ from src.environment.obs_reward import Obstacles
 from src.environment.car import Car
 from src.agent.visualize import Visualizer
 import copy
+import time 
+
+
+
+def visualize(environment, path):
+    track_length = environment.track.length  
+    for step in path:
+        state = step[0]
+        position = state[0]
+        
+        if position >= track_length:
+            track_length = position + 1
+        
+        track = ['_'] * track_length
+        track[position] = 'C'  
+        print(''.join(track))
+        time.sleep(0.5) 
+    print("Goal Reached!")
+
+
 
 def heuristic(state, goal):
     # heuristic will be the distance to the goal minus battery consumption
