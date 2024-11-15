@@ -10,21 +10,18 @@ from src.agent.visualize import Visualizer
 from collections import deque
 import copy
 
-# def visualize(solution, track_length):
-#     for step in solution:
-#         state = step[0]
-#         position = state[0]
+def visualize_sol(solution, track_length):
+    for position in solution:  
+        if position >= track_length:
+            track_length = position + 1
 
-#         if position >= track_length:
-#             track_length = position + 1
+        track = ['_'] * track_length
+        if position < track_length:
+            track[position] = 'C'
+        print(''.join(track))
 
-#         track = ['_'] * track_length
-#         if position < track_length:
-#             track[position] = 'C'
-#         print(''.join(track))
-
-#         time.sleep(0.5)
-#     print("Goal Reached!")
+        time.sleep(0.5)
+    print("Goal Reached!")
 
 def get_successors(environment, path):
     actions = ["accelerate", "decelerate", "recharge", "move"]
@@ -95,7 +92,12 @@ def main():
         print("Solution path:", solution)
         total_steps = len(solution) - 1
         print("Total steps:", total_steps)
-        # visualize(env, solution)
+
+        positions = []
+        for state in solution:
+            positions.append(state[0])
+
+        visualize_sol(positions, env.track.length)
 
         visualizer.show_graph(solution)
     else:

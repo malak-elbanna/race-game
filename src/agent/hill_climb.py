@@ -81,6 +81,8 @@ def main():
     if solution:
         print("Solution path:", solution)
         print("Total steps:", len(solution) - 1)
+
+        visualize(env, solution)
         visualizer.show_graph(solution)
     else:
         print("No solution found")

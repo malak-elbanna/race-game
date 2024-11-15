@@ -11,8 +11,6 @@ from src.agent.visualize import Visualizer
 import copy
 import time 
 
-
-
 def visualize(environment, path):
     track_length = environment.track.length  
     for step in path:
@@ -27,7 +25,6 @@ def visualize(environment, path):
         print(''.join(track))
         time.sleep(0.5) 
     print("Goal Reached!")
-
 
 
 def heuristic(state, goal):
@@ -91,6 +88,7 @@ def main():
         print("Solution path:", solution)
         print("Total steps:", len(solution) - 1)
         
+        visualize(env, solution)
         visualizer.show_graph(solution)
     else:
         print("No solution found")

@@ -98,7 +98,7 @@ def main():
         print("Total steps:", total_steps)
 
         visualizer.show_graph(solution)
-        #visualize(env, solution)  
+        visualize(env, solution)  
     else:
         print("No solution")
         visualizer.show_graph()

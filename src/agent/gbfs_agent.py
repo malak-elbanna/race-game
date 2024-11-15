@@ -5,6 +5,23 @@ from src.environment.car import Car
 from src.agent.visualize import Visualizer
 import heapq
 import copy
+import time
+
+def visualize(solution, track_length):
+    for step in solution:
+        state = step[0]
+        position = state[0]
+
+        if position >= track_length:
+            track_length = position + 1
+
+        track = ['_'] * track_length
+        if position < track_length:
+            track[position] = 'C'
+        print(''.join(track))
+
+        time.sleep(0.5)
+    print("Goal Reached!")
 
 def heuristic(car_position, goal_position, speed, battery, track_length):
     distance_to_goal = goal_position - car_position
@@ -103,6 +120,8 @@ def main():
             total_cost += cost
 
         print("Total cost:", total_cost)
+
+        #visualize(solution, env.track.length)
         visualizer.show_graph(solution)
     else:
         print("no solution")

@@ -129,8 +129,9 @@ def main():
         total_cost = 0
         for i, cost in solution:
             total_cost += cost
-        #visualize(solution, env.track.length)
         print("Total cost:", total_cost)
+        
+        visualize(solution, env.track.length)
         visualizer.show_graph(solution)
     else:
         print("No solution found")

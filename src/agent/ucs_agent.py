@@ -9,9 +9,6 @@ from src.environment.car import Car
 from src.agent.visualize import Visualizer
 import heapq
 
-
-
-
 def path_cost(path):
     g_cost = 0
     for _, cost in path:
