@@ -1,11 +1,27 @@
 import sys
 import os
+import time  
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '../../')))
 from src.environment.env import Environment
 from src.environment.terrain import Terrain
 from src.environment.obs_reward import Obstacles
 from src.environment.car import Car
 from collections import deque
+
+def visualize(environment, path):
+    track_length = environment.track.length 
+    for step in path:
+        state = step[0]
+        position = state[0]
+        
+        if position >= track_length:
+            track_length = position + 1
+        
+        track = ['_'] * track_length
+        track[position] = 'C' 
+        print(''.join(track))
+        time.sleep(0.5) 
+    print("Goal Reached!")
 
 def get_successors(environment, path):
     actions = ["accelerate", "decelerate", "recharge", "move"]
@@ -25,7 +41,7 @@ def get_successors(environment, path):
 
         if new_position > position and new_state not in seen_states:
             successors.append((new_state, 1))
-            seen_states.add(new_state) 
+            seen_states.add(new_state)
     return successors
 
 def dfs_limited(environment, goal, limit):
@@ -34,7 +50,7 @@ def dfs_limited(environment, goal, limit):
     visited = set()  
 
     while frontier:
-        path = frontier.pop() 
+        path = frontier.pop()
         state = path[-1][0]
 
         if state[0] >= goal:
@@ -69,12 +85,13 @@ def ids(environment, goal):
 
 def main():
     env = Environment(track_length=40)
-    solution = ids(env, env.track.length - 1) 
+    solution = ids(env, env.track.length - 1)
 
     if solution:
         print("Solution path:", solution)
         total_steps = len(solution) - 1
         print("Total steps:", total_steps)
+        visualize(env, solution)  
     else:
         print("No solution")
 

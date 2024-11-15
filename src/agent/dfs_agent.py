@@ -9,20 +9,14 @@ from src.environment.car import Car
 from collections import deque
 import copy
 
-def visualize(solution, track_length):
-    for step in solution:
+def visualize(environment, path):
+    for step in path:
         state = step[0]
         position = state[0]
-
-        if position >= track_length:
-            track_length = position + 1
-
-        track = ['_'] * track_length
-        if position < track_length:
-            track[position] = 'C'
+        track = ['_'] * environment.track.length
+        track[position] = 'C' 
         print(''.join(track))
-
-        time.sleep(0.5)
+        time.sleep(0.5)  
     print("Goal Reached!")
 
 def get_successors(environment, path):
@@ -81,8 +75,7 @@ def main():
         print("Solution path:", solution)
         total_steps = len(solution) - 1
         print("Total steps:", total_steps)
-        visualize(solution, env.track.length)
+        visualize(env, solution)
     else:
         print("No solution")
-
 main()
