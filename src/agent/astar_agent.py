@@ -69,21 +69,21 @@ def get_successors(environment, path):
             successors.append((new_state, cost))
     return successors
 
-def visualize(environment, path):
-    track_length = environment.track.length 
-    for step in path:
+def visualize(solution, track_length):
+    for step in solution:
         state = step[0]
         position = state[0]
-        
-        if position >= track_length:
-            return
-        
-        track = ['_'] * track_length
-        track[position] = 'C' 
-        print(''.join(track))
-        time.sleep(0.5)  
-    print("Goal Reached!")
 
+        if position >= track_length:
+            track_length = position + 1
+
+        track = ['_'] * track_length
+        if position < track_length:
+            track[position] = 'C'
+        print(''.join(track))
+
+        time.sleep(0.5)
+    print("Goal Reached!")
 
 def astar(environment, goal):
     initial_state = environment.get_state()
@@ -123,7 +123,7 @@ def main():
         total_cost = 0
         for i, cost in solution:
             total_cost += cost
-        visualize(env, solution)
+        visualize(solution, env.track.length)
         print("Total cost:", total_cost)
     else:
         print("no solution")
