@@ -8,6 +8,23 @@ from src.environment.obs_reward import Obstacles
 from src.environment.car import Car
 from src.agent.visualize import Visualizer
 import heapq
+import time
+
+def visualize(solution, track_length):
+    for step in solution:
+        state = step[0]
+        position = state[0]
+
+        if position >= track_length:
+            track_length = position + 1
+
+        track = ['_'] * track_length
+        if position < track_length:
+            track[position] = '🏎️'
+        print(''.join(track))
+
+        time.sleep(0.5)
+    print("Goal Reached!")
 
 def path_cost(path):
     g_cost = 0
@@ -91,6 +108,7 @@ def main():
 
         print("Total cost: ", total_cost)
 
+        visualize(solution, env.track.length)
         visualizer.show_graph(solution)
     else:
         print("No solution")

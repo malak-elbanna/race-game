@@ -81,7 +81,7 @@ def visualize(solution, track_length):
 
         track = ['_'] * track_length
         if position < track_length:
-            track[position] = 'C'
+            track[position] = '🏎️'
         print(''.join(track))
 
         time.sleep(0.5)

@@ -21,7 +21,7 @@ def visualize(environment, path):
             track_length = position + 1
         
         track = ['_'] * track_length
-        track[position] = 'C'  
+        track[position] = '🏎️'  
         print(''.join(track))
         time.sleep(0.5) 
     print("Goal Reached!")
