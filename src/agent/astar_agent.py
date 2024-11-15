@@ -1,6 +1,7 @@
 import sys
 import os
 import copy
+import time  # for visualization 
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '../../')))
 from src.environment.env import Environment
 from src.environment.terrain import Terrain
@@ -68,6 +69,22 @@ def get_successors(environment, path):
             successors.append((new_state, cost))
     return successors
 
+def visualize(solution, track_length):
+    for step in solution:
+        state = step[0]
+        position = state[0]
+
+        if position >= track_length:
+            track_length = position + 1
+
+        track = ['_'] * track_length
+        if position < track_length:
+            track[position] = 'C'
+        print(''.join(track))
+
+        time.sleep(0.5)
+    print("Goal Reached!")
+
 def astar(environment, goal):
     initial_state = environment.get_state()
     frontier = []
@@ -106,7 +123,7 @@ def main():
         total_cost = 0
         for i, cost in solution:
             total_cost += cost
-
+        visualize(solution, env.track.length)
         print("Total cost:", total_cost)
     else:
         print("no solution")
