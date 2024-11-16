@@ -142,7 +142,7 @@ def calc_avg_memory():
     return avg_memory
 
 def main():
-    env = Environment(track_length=1000)  
+    env = Environment(track_length=20)  
     visualizer = Visualizer()
     solution = greedy(env, env.track.length - 1, visualizer)
 
@@ -154,12 +154,12 @@ def main():
 
         print("Total cost:", total_cost)
 
-        #visualize(solution, env.track.length)
+        visualize(solution, env.track.length)
         visualizer.show_graph(solution)
     else:
         print("no solution")
         visualizer.show_graph()
 
-# main()
+main()
 #calc_avg_runtime()
-calc_avg_memory()
+#calc_avg_memory()

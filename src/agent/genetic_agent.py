@@ -8,7 +8,9 @@ from src.agent.astar_agent import astar
 from src.agent.hill_climb import hill_climb
 from src.agent.simulated_annealing import simulated_annealing
 from src.agent.dfs_agent import dfs
-
+from src.agent.gbfs_agent import greedy
+import time
+import tracemalloc
 
 def fitness(path):
     # fitness function that returns the length of the path, Shorter paths are more fit
@@ -47,7 +49,7 @@ def genetic_algorithm(environment, goal, generations=100):
         astar(environment, goal),
         hill_climb(environment, goal),
         simulated_annealing(environment, goal),
-        dfs(environment, goal)
+        greedy(environment, goal)
     ]
 
     # To remember which is the best solution found
@@ -82,9 +84,44 @@ def genetic_algorithm(environment, goal, generations=100):
 
     return best_solution
 
-# Usage example
-env = Environment(track_length=100)
-goal = env.track.length - 1
-solution = genetic_algorithm(env, goal)
+def calc_avg_runtime():
+    times = []
+    for i in [5, 10, 15, 20, 25, 30, 35, 40]:
+        env = Environment(track_length=i)
+        start = time.time()
+        solution = genetic_algorithm(env, i -1)
+        end = time.time()
 
-print("Best solution that the genetic algorithm found:\n", solution)
+        total = end - start
+        times.append(total)
+    
+    avg_time = sum(times) / len(times)
+    print("\nAverage time= ", avg_time)
+    return avg_time
+
+def calc_avg_memory():
+    memory_usages = []
+
+    for i in [5, 10, 15, 20, 25, 30, 35, 40]:
+        env = Environment(track_length=i)
+        
+        tracemalloc.start()  
+        sol = genetic_algorithm(env, i - 1)
+        current, peak = tracemalloc.get_traced_memory()  
+        tracemalloc.stop()
+
+        memory_usages.append(peak)  
+
+    avg_memory = sum(memory_usages) / len(memory_usages)
+    print("\nAverage memory usage (bytes):", avg_memory)
+    return avg_memory 
+
+# Usage example
+# env = Environment(track_length=100)
+# goal = env.track.length - 1
+# solution = genetic_algorithm(env, goal)
+
+# print("Best solution that the genetic algorithm found:\n", solution)
+
+#calc_avg_runtime()
+calc_avg_memory()

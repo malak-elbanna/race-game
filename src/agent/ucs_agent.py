@@ -128,7 +128,7 @@ def calc_avg_memory():
     return avg_memory
 
 def main():
-    env = Environment(track_length=20)
+    env = Environment(track_length=10)
     print(env)  
     visualizer = Visualizer()
     solution = ucs(env, env.track.length - 1, visualizer)
@@ -147,7 +147,7 @@ def main():
         print("No solution")
         visualizer.show_graph()
 
-# main()
+main()
 #calc_avg_runtime()
 
-calc_avg_memory()
+#calc_avg_memory()

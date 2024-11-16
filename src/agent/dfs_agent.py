@@ -136,7 +136,7 @@ def main():
     else:
         print("No solution")
 
-# main()
+main()
 
 #calc_avg_runtime()
 calc_avg_memory()

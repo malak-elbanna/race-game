@@ -117,7 +117,7 @@ def calc_avg_memory():
     avg_memory = sum(memory_usages) / len(memory_usages)
     print("\nAverage memory usage (bytes):", avg_memory)
     return avg_memory
-    
+        
 
 def main():
     env = Environment(track_length=10)  
@@ -140,6 +140,6 @@ def main():
         print("no solution")
         visualizer.show_graph()
 
-#main()
+main()
 #calc_avg_runtime()
-calc_avg_memory()
+# calc_avg_memory

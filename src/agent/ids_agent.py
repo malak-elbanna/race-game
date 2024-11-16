@@ -8,6 +8,7 @@ from src.environment.obs_reward import Obstacles
 from src.environment.car import Car
 from collections import deque
 from src.agent.visualize import Visualizer
+import tracemalloc
 
 def visualize(environment, path):
     track_length = environment.track.length 
@@ -87,6 +88,38 @@ def ids(environment, goal, visualizer=None):
             return result
         depth += 1
 
+def calc_avg_runtime():
+    times = []
+    for i in [5, 10, 15, 20, 25, 30, 35, 40]:
+        env = Environment(track_length=i)
+        start = time.time()
+        solution = ids(env, i -1)
+        end = time.time()
+
+        total = end - start
+        times.append(total)
+    
+    avg_time = sum(times) / len(times)
+    print("\nAverage time= ", avg_time)
+    return avg_time
+
+def calc_avg_memory():
+    memory_usages = []
+
+    for i in [5, 10, 15, 20, 25, 30]:
+        env = Environment(track_length=i)
+        
+        tracemalloc.start()  
+        sol = ids(env, i - 1)
+        current, peak = tracemalloc.get_traced_memory()  
+        tracemalloc.stop()
+
+        memory_usages.append(peak)  
+
+    avg_memory = sum(memory_usages) / len(memory_usages)
+    print("\nAverage memory usage (bytes):", avg_memory)
+    return avg_memory
+
 def main():
     env = Environment(track_length=10)
     visualizer = Visualizer()
@@ -103,4 +136,6 @@ def main():
         print("No solution")
         visualizer.show_graph()
 
-main()
+# main()
+#calc_avg_runtime()
+calc_avg_memory()
