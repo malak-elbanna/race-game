@@ -27,7 +27,7 @@ def visualize(solution, track_length):
         time.sleep(0.5)
     print("Goal Reached!")
 
-def path_cost(path):
+def path_cost(path): #ucs uses the cumulative path from the sourse
     g_cost = 0
     for _, cost in path:
         g_cost += cost
@@ -62,7 +62,7 @@ def get_successors(environment, path):
             successors.append((new_state, cost))
     return successors
 
-def ucs(environment, goal, visualizer=None):
+def ucs(environment, goal, visualizer=None): #Main ucs function using the heap and the pathcost
     initial_state = environment.get_state()
     frontier = []
     heapq.heappush(frontier, (0, [(initial_state, 0)]))  
