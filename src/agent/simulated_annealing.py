@@ -25,6 +25,7 @@ def visualize(environment, path):
         track[position] = '🏎️'  
         print(''.join(track))
         time.sleep(0.5) 
+    
     print("Goal Reached!")
 
 
