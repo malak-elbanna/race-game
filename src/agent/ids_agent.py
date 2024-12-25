@@ -136,6 +136,6 @@ def main():
         print("No solution")
         visualizer.show_graph()
 
-# main()
+main()
 #calc_avg_runtime()
-calc_avg_memory()
+# calc_avg_memory()

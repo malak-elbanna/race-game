@@ -139,4 +139,4 @@ def main():
 main()
 
 #calc_avg_runtime()
-calc_avg_memory()
+# calc_avg_memory()

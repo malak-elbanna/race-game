@@ -120,13 +120,16 @@ def calc_avg_memory():
         
 
 def main():
-    env = Environment(track_length=10)  
+    env = Environment(track_length=5)  
     visualizer = Visualizer()
     solution = bfs(env, env.track.length - 1, visualizer)
     
     if solution:
         print("Solution path:", solution)
         total_steps = len(solution) - 1
+        total_coins = sum(state[-1] for state in solution)
+
+        print(f"Total coins collected: {total_coins}")
         print("Total steps:", total_steps)
         
         positions = []
