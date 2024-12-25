@@ -92,9 +92,11 @@ class Environment:
         
         self.car.move()
 
-        if self.game_over():
-            print("game overrrr")
-            return True
+        # reward = self.simple_reward()
+        reward = self.reward_function()
+        done = self.game_over()
+        
+        return self.get_state(), reward, done
 
     def game_over(self):
         print(f"\nPostiion: {self.car.position} \n Battery: {self.car.battery} \nSpeed: {self.car.speed} \n")
