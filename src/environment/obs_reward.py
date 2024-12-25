@@ -25,7 +25,7 @@ class Rewards:
     rews = ["small_coin",'big_coin', "benzene",'speed_boost','nitro_boost']
 
     def __init__(self, reward):
-        self.reward = reward
+        self.type = reward
     
     @classmethod
     def random_reward(cls):
@@ -34,13 +34,13 @@ class Rewards:
         return cls(reward)
 
     def impact(self,car):
-        if self.reward == "small_coin":
+        if self.type == "small_coin":
             car.collect_coin(1)
-        elif self.reward == "big_coin":
+        elif self.type == "big_coin":
             car.collect_coin(10)
-        elif self.reward == "benzene":
+        elif self.type == "benzene":
             car.battery = min(car.battery + 10, car.MAX_BATTERY)
-        elif self.reward == "speed_boost":
+        elif self.type == "speed_boost":
            car.speed = min(car.speed + 1, car.MAX_SPEED)
-        elif self.reward == "nitro_boost":
+        elif self.type == "nitro_boost":
             car.speed = min(car.speed * 1.5, car.MAX_SPEED)

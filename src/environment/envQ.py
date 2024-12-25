@@ -104,3 +104,4 @@ class Environment:
     
     def get_state(self):
         return (self.car.position, self.car.speed, self.car.battery, self.car.coins)
+
