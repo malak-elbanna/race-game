@@ -11,6 +11,9 @@ from src.environment.obs_reward import Obstacles
 from src.environment.car import Car
 from src.agent.visualize import Visualizer
 import tracemalloc
+import matplotlib.pyplot as plt
+from matplotlib.animation import FuncAnimation
+
 
 
 import random
@@ -68,20 +71,56 @@ def test_q_learning(q_table, env, action_space):
             # Select the best action from Q-table
             action = max(q_table[state], key=q_table[state].get) 
 
-        # Take action and observe the results
         new_state, reward, done = env.step(action)
         print(f"State: {new_state}, Reward: {reward}, Action: {action}")
 
-        state = new_state  # Move to the next state
+        state = new_state  
 
     if state[0] >= env.track.length:
         print("Goal reached!")
     else:
         print("Failed.")
 
+def visualize_simulation(q_table, env, action_space):
+    env.rebuild() 
+    state = env.get_state() 
+    done = False
+
+    fig, ax = plt.subplots()
+    track_length = env.track.length
+    positions = []
+
+    def update(frame):
+        nonlocal state, done
+        ax.clear()
+
+        if state not in q_table:
+            action = random.choice(action_space)
+        else:
+            action = max(q_table[state], key=q_table[state].get)
+
+        new_state, reward, done = env.step(action)
+
+        positions.append(state[0])
+        ax.plot(range(track_length), [0]*track_length, 'k-', lw=1)
+        ax.plot(positions, [0]*len(positions), 'ro-', label='Agent Path')
+        ax.set_xlim(-1, track_length)
+        ax.set_ylim(-1, 1)
+        ax.set_title(f"Action: {action}, Reward: {reward}")
+        ax.legend()
+
+        state = new_state 
+
+        if done:
+            ax.text(track_length // 2, 0.5, "Simulation End", fontsize=12, ha='center')
+            ax.text(track_length // 2, -0.5, "Goal reached!" if state[0] >= track_length else "Failed.", fontsize=12, ha='center')
+
+    ani = FuncAnimation(fig, update, frames=range(100), repeat=False, interval=500)
+    plt.show()
 
 
 env = Environment(track_length=10)
 action_space = ["accelerate", "decelerate", "recharge", "move"]
 q_table = q_learning(env, episodes=1000, alpha=0.1, gamma=0.9, epsilon=0.1)
 test_q_learning(q_table, env, action_space)
+visualize_simulation(q_table, env, action_space)
