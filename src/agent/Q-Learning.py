@@ -4,6 +4,7 @@ import copy
 import numpy as np
 import random
 import time 
+import tracemalloc
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '../../')))
 from src.environment.envQ import Environment
 from src.environment.terrain import Terrain
@@ -122,8 +123,23 @@ def visualize_simulation(q_table, env, action_space):
     plt.show()
 
 
+
 env = Environment(track_length=10)
 action_space = ["accelerate", "decelerate", "recharge", "move"]
 q_table = q_learning(env, episodes=1000, alpha=0.1, gamma=0.9, epsilon=0.1)
+
+tracemalloc.start()
+startTime = time.time()
+
 test_q_learning(q_table, env, action_space)
+
+endtime = time.time()
+current,most = tracemalloc.get_traced_memory()
+totaltime = endtime-startTime
 visualize_simulation(q_table, env, action_space)
+
+print("Current is : " , current)
+print ("Most is : " , most)
+print ("Total time is : " , totaltime)
+
+tracemalloc.stop()
