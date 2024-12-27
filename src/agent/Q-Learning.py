@@ -94,6 +94,9 @@ def visualize_simulation(q_table, env, action_space):
         nonlocal state, done
         ax.clear()
 
+        if done:
+            return
+
         if state not in q_table:
             action = random.choice(action_space)
         else:
