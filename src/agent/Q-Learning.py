@@ -16,10 +16,6 @@ import matplotlib.pyplot as plt
 from matplotlib.animation import FuncAnimation
 
 
-
-import random
-import numpy as np
-
 def q_learning(env, episodes, alpha=0.1, gamma=0.9, epsilon=0.1):
     Q = {}  # Initialize the Q-table as a dictionary
     actions = ["accelerate", "decelerate", "recharge", "move"]
@@ -86,43 +82,60 @@ def visualize_simulation(q_table, env, action_space):
     env.rebuild() 
     state = env.get_state() 
     done = False
-
-    fig, ax = plt.subplots()
-    track_length = env.track.length
+    
+    # Collect all positions first
     positions = []
-
-    def update(frame):
-        nonlocal state, done
-        ax.clear()
-
-        if done:
-            return
-
+    states = []
+    actions = []
+    rewards = []
+    
+    while not done:
         if state not in q_table:
             action = random.choice(action_space)
         else:
             action = max(q_table[state], key=q_table[state].get)
-
+            
         new_state, reward, done = env.step(action)
-
         positions.append(state[0])
+        states.append(state)
+        actions.append(action)
+        rewards.append(reward)
+        state = new_state
+        
+    # Add final position
+    positions.append(state[0])
+    
+    # Create figure and animation
+    fig, ax = plt.subplots(figsize=(10, 6))
+    track_length = env.track.length
+    
+    def update(frame):
+        ax.clear()
+        
         ax.plot(range(track_length), [0]*track_length, 'k-', lw=1)
-        ax.plot(positions, [0]*len(positions), 'ro-', label='Agent Path')
-        ax.set_xlim(-1, track_length)
+        
+        current_positions = positions[:frame+1]
+        ax.plot(current_positions, [0]*len(current_positions), 'ro-', label='Agent Path')
+        
+        ax.set_xlim(-1, track_length + 1)
         ax.set_ylim(-1, 1)
-        ax.set_title(f"Action: {action}, Reward: {reward}")
+        
+        if frame < len(actions):
+            ax.set_title(f"Step {frame}: Action: {actions[frame]}, Reward: {rewards[frame]:.2f}")
+        
+        if frame == len(positions) - 1:
+            status = "Goal reached!" if positions[-1] >= track_length else "Failed"
+            ax.text(track_length/2, 0.5, f"Simulation End - {status}", 
+                   fontsize=12, ha='center', bbox=dict(facecolor='white', alpha=0.7))
+        
+        ax.grid(True)
         ax.legend()
-
-        state = new_state 
-
-        if done:
-            ax.text(track_length // 2, 0.5, "Simulation End", fontsize=12, ha='center')
-            ax.text(track_length // 2, -0.5, "Goal reached!" if state[0] >= track_length else "Failed.", fontsize=12, ha='center')
-
-    ani = FuncAnimation(fig, update, frames=range(100), repeat=False, interval=500)
+        
+    num_frames = len(positions)
+    ani = FuncAnimation(fig, update, frames=num_frames, 
+                       interval=500, repeat=False)
+    
     plt.show()
-
-
 
 env = Environment(track_length=10)
 action_space = ["accelerate", "decelerate", "recharge", "move"]
